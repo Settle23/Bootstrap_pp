@@ -51,8 +51,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void updateUser(User updateUser, long id) {
         User existingUser = userRepository.findById(updateUser.getId()).orElse(null);
         if (existingUser != null) {
-            if (!updateUser.getPassword().equals(existingUser.getPassword())) {
-                updateUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
+            if (!passwordEncoder.matches(updateUser.getPassword(), existingUser.getPassword())) {
+                // Check if the password is already encoded
+                if (!updateUser.getPassword().startsWith("$2a$")) {
+                    updateUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
+                }
             }
         }
         updateUser.setId(id);
